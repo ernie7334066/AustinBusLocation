@@ -1,9 +1,9 @@
 # AustinBusLocation
 This is a project that aim to provide real-time bus location in Austin, Texas
 
-## Requirements
-TODO: Document what libraries are being used in requirements.txt
-TODO: Document how map.html is generated
+## Quick Start
+Install dependencies: `pip install -r requirements.txt`
+Start the server: `python server/server.py`
 
 # Project Road Map
 * Build a backend API to provide real time data, with filter functionality
