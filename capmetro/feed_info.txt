@@ -1,0 +1,2 @@
+feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version,sign_id
+CapMetro,http://www.capmetro.org,en,20190106,20190615,20190116160559,124
