@@ -2,6 +2,7 @@ from flask import Flask
 import os
 import requests
 import json
+import time
 
 app = Flask(__name__)
 
@@ -63,6 +64,9 @@ def bus_locations(route_id):
     d = r.json()
     vehs = d['entity']
     filteredVehs = [veh for veh in vehs if int(veh['vehicle']['trip']['route_id']) == route_id]
+    CurrentTime = int(time.time())
+    for veh in filteredVehs:
+        veh['vehicle']['timelapse'] = CurrentTime - veh['vehicle']['timestamp']
     return json.dumps(filteredVehs)
 
 

@@ -1,6 +1,6 @@
 import folium
 import requests
-
+import time
 
 # Create map object
 m = folium.Map(location=[30.26,-97.74], zoom_start=12)
@@ -48,3 +48,5 @@ with open("capmetro/stops.txt") as f:
         if stop_id in filtered_stop_id:
             filtered_stop_lat.append(float(stop_lat))
             filtered_stop_long.append(float(stop_lon))
+
+current_time = int(time.time())
