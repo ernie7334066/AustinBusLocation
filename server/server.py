@@ -3,6 +3,7 @@ import os
 import requests
 import json
 import time
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 
@@ -13,6 +14,7 @@ def hello():
 
 
 @app.route("/all_route_ids")
+@cross_origin()
 def all_routes():
     """ Returns all bus route IDs """
     all_routes = []
