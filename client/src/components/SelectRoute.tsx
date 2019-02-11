@@ -20,6 +20,7 @@ class PureSelectRoute extends React.Component<any, any> {
     super(props);
     this.state = {
       route: '',
+      menuItems: [],
     };
   }
 
@@ -28,7 +29,15 @@ class PureSelectRoute extends React.Component<any, any> {
     fetch('http://localhost:5000/all_route_ids')
       .then(response => {
         response.json().then(routeIds => {
-            console.log(routeIds);
+          console.log(routeIds);
+          // Construct menu items array
+          var items = [];
+          for (var i in routeIds){
+               items.push(
+                  <MenuItem key={i} value={i}>{routeIds[i]}</MenuItem>
+                 );
+              }
+          this.setState({menuItems: items})           
           }
         )
       })
@@ -40,7 +49,6 @@ class PureSelectRoute extends React.Component<any, any> {
 
   public render() {
     const { classes } = this.props;
-
     return (
       <form className={classes.root} autoComplete="off">
         <FormControl className={classes.formControl}>
@@ -56,9 +64,7 @@ class PureSelectRoute extends React.Component<any, any> {
             <MenuItem value="">
               <em>None</em>
             </MenuItem>
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            {this.state.menuItems}
           </Select>
         </FormControl>
       </form>
