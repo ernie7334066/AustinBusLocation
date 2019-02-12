@@ -1,24 +1,38 @@
-import mapboxgl from "mapbox-gl";
+import mapboxgl, { Map as MapBoxMap } from "mapbox-gl";
 import * as React from "react";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
 
-const addMarker = (lng: number, lat: number, map: any) => {
-  new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
-};
-
 interface MapProps {
   route?: number;
+  busStops: BusStop[];
 }
 
-export class Map extends React.Component<MapProps, any> {
-  constructor(props: any) {
+export interface BusStop {
+  lat: number;
+  lng: number;
+  stop_id: string;
+}
+
+interface MapState {
+  lng: number;
+  lat: number;
+  zoom: number;
+  // map is an instance of https://docs.mapbox.com/mapbox-gl-js/api/#map
+  map?: MapBoxMap;
+}
+
+const defaultCenter: Coordinate = [-97.7431, 30.2672];
+export declare type Coordinate = [number, number];
+
+export class Map extends React.Component<MapProps, MapState> {
+  constructor(props: MapProps) {
     super(props);
     this.state = {
-      lng: -97.7431,
-      lat: 30.2672,
+      lng: defaultCenter[0],
+      lat: defaultCenter[1],
       zoom: 11.5,
-      map: null
+      map: undefined
     };
   }
 
@@ -30,53 +44,83 @@ export class Map extends React.Component<MapProps, any> {
         map: new mapboxgl.Map({
           container: "map",
           style: "mapbox://styles/mapbox/streets-v9",
-          center: [lng, lat],
+          center: defaultCenter,
           zoom
         })
       },
       () => {
-        const { map } = this.state;
-        addMarker(lng, lat, map);
-
-        map.on("move", () => {
-          this.setState({
-            lng: lng.toFixed(4),
-            lat: lat.toFixed(4),
-            zoom: map.getZoom().toFixed(2)
-          });
-        });
+        this.addMarker([lng, lat]);
       }
     );
   }
 
-  // TODO: fill this function.
-  public loadRouteData = (routeID?: number): void => {
-    if (routeID) {
-      // tslint:disable-next-line:no-console
-      console.log(`Load route data for: ${this.props.route}`);
-    }
-  };
-
   public render() {
-    const { lng, lat, zoom } = this.state;
-    this.loadRouteData(this.props.route);
-
     // TODO: render the route based on data received from backend.
     // tslint:disable-next-line:no-console
-    console.log(`Display route for: ${this.props.route}`);
+    // console.log(`Display route for: ${this.props.route}`);
+    if (
+      this.state.map &&
+      this.state.map.isStyleLoaded() &&
+      this.props.busStops.length !== 0
+    ) {
+      this.renderBusRoute();
+    }
 
     // TODO: adjust height based on screen size.
     return (
-      <div>
-        <div className="inline-block absolute top left mt12 ml12 bg-darken75 color-white z1 py6 px12 round-full txt-s txt-bold">
-          <div>{`Longitude: ${lng} Latitude: ${lat} Zoom: ${zoom}`}</div>
-        </div>
-        <div
-          id="map"
-          className="absolute top right left bottom"
-          style={{ height: 800, width: "100%" }}
-        />
-      </div>
+      <div
+        id="map"
+        className="absolute top right left bottom"
+        style={{ height: 800, width: "100%" }}
+      />
     );
   }
+
+  private renderBusRoute = () => {
+    const busStops: Coordinate[] = this.props.busStops.map(busStop => {
+      return [busStop.lng, busStop.lat] as Coordinate;
+    });
+
+    this.drawLines(busStops);
+  };
+
+  private addMarker = (coordinate: Coordinate) => {
+    const { map } = this.state;
+    if (map) {
+      new mapboxgl.Marker().setLngLat(coordinate).addTo(map);
+    }
+  };
+
+  private drawLines = (coordinates: Coordinate[]) => {
+    // const coordinates: Coordinate[] = [
+    //   [-97.7431, 30.2672],
+    //   [-97.7531, 30.2772],
+    // ];
+    const { map } = this.state;
+    if (map) {
+      map.addLayer({
+        id: "route",
+        type: "line",
+        source: {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: coordinates
+            }
+          }
+        },
+        layout: {
+          "line-join": "round",
+          "line-cap": "round"
+        },
+        paint: {
+          "line-color": "#888",
+          "line-width": 8
+        }
+      });
+    }
+  };
 }

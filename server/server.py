@@ -28,6 +28,7 @@ def all_routes():
 
 
 @app.route("/bus_stops/<int:route_id>")
+@cross_origin()
 def bus_stops(route_id):
     """ Given a bus route id, returns all the bus stops' positions. """
     r = requests.get('https://data.texas.gov/download/cuc7-ywmd/text%2Fplain')
@@ -37,6 +38,7 @@ def bus_stops(route_id):
     filteredTripID = [veh['vehicle']['trip']['trip_id'] for veh in vehs if
                       int(veh['vehicle']['trip']['route_id']) == route_id]
     filtered_stop_id = []
+    # TODO: fix relative file path such that we can also run `python server/server.py`, not just `python server.py`
     with open("../capmetro/stop_times.txt") as f:
         for line in f:
             (trip_id, arrival_time, departure_time,
@@ -47,6 +49,7 @@ def bus_stops(route_id):
                 filtered_stop_id.append(stop_id)
     # query stop coordinates using stop ID
     filtered_stop_position = []
+    # TODO: fix relative file path such that we can also run `python server/server.py`, not just `python server.py`
     with open("../capmetro/stops.txt") as f:
         for line in f:
             (stop_id, stop_code, stop_name, stop_desc,
@@ -56,10 +59,12 @@ def bus_stops(route_id):
              on_street, at_street, heading) = line.split(",")
             if stop_id in filtered_stop_id:
                 filtered_stop_position.append({'stop_id': stop_id, 'lat': float(stop_lat), 'lng': float(stop_lon)})
+    # TODO: Sort bus stops in travel order.
     return json.dumps(filtered_stop_position)
 
 
 @app.route("/bus_locations/<int:route_id>")
+@cross_origin()
 def bus_locations(route_id):
     """ Returns the position of a certain bus route. """
     r = requests.get('https://data.texas.gov/download/cuc7-ywmd/text%2Fplain')

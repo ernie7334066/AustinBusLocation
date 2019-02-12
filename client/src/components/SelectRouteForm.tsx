@@ -67,20 +67,14 @@ class PureSelectRoute extends React.Component<
     // Call the backend and load all available routes here.
     fetch("http://localhost:5000/all_route_ids").then(response => {
       response.json().then(routeIds => {
-        // console.log(routeIds);
         // Construct menu items array
-        const items = [];
-        for (const i in routeIds) {
-          if (i) {
-            items.push(
-              <MenuItem key={i} value={routeIds[i]}>
-                {routeIds[i]}
-              </MenuItem>
-            );
-          }
-        }
-
-        this.setState({ menuItems: items });
+        this.setState({
+          menuItems: routeIds.map((routeId: number, index: number) => (
+            <MenuItem key={index} value={routeId}>
+              {routeId}
+            </MenuItem>
+          ))
+        });
       });
     });
   }

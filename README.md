@@ -2,8 +2,12 @@
 This is a project that aim to provide real-time bus location in Austin, Texas
 
 ## Quick Start
-Install dependencies: `pip install -r requirements.txt`
-Start the server: `python server/server.py`
+### Server
+* Install dependencies: `pip install -r requirements.txt`
+* Start the server: `python server/server.py`
+
+### Client
+Please refer to README.md in `client/`
 
 # Project Road Map
 * Build a backend API to provide real time data, with filter functionality
