@@ -1,4 +1,4 @@
-import {FormControl, InputLabel, MenuItem, Select, withStyles} from "@material-ui/core";
+import {Button, FormControl, FormGroup, InputLabel, MenuItem, Select, withStyles} from "@material-ui/core";
 import * as React from "react";
 
 const styles = (theme: any) => ({
@@ -15,7 +15,17 @@ const styles = (theme: any) => ({
   },
 });
 
-class PureSelectRoute extends React.Component<any, any> {
+interface PureSelectRouteState {
+  route: string;
+  menuItems: JSX.Element[];
+}
+
+interface PureSelectRouteProps {
+  classes: any;
+  onSubmit(route: string): void;
+}
+
+class PureSelectRoute extends React.Component<PureSelectRouteProps, PureSelectRouteState> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -34,7 +44,7 @@ class PureSelectRoute extends React.Component<any, any> {
           var items = [];
           for (var i in routeIds){
                items.push(
-                  <MenuItem key={i} value={i}>{routeIds[i]}</MenuItem>
+                  <MenuItem key={i} value={routeIds[i]}>{routeIds[i]}</MenuItem>
                  );
               }
           this.setState({menuItems: items})           
@@ -43,22 +53,22 @@ class PureSelectRoute extends React.Component<any, any> {
       })
   };
 
-  handleChange = (event: any) => {
-    this.setState({ [event.target.name]: event.target.value });
+  handleRouteChange = (event: {target: {value: string}}) => {
+    this.setState({ route: event.target.value });
   };
 
   public render() {
     const { classes } = this.props;
     return (
-      <form className={classes.root} autoComplete="off">
+      <FormGroup className={classes.root} row={true}>
         <FormControl className={classes.formControl}>
-          <InputLabel htmlFor="age-simple">Route</InputLabel>
+          <InputLabel htmlFor="route-select">Route</InputLabel>
           <Select
             value={this.state.route}
-            onChange={this.handleChange}
+            onChange={this.handleRouteChange}
             inputProps={{
               name: 'route',
-              id: 'age-simple',
+              id: 'route-select',
             }}
           >
             <MenuItem value="">
@@ -67,9 +77,12 @@ class PureSelectRoute extends React.Component<any, any> {
             {this.state.menuItems}
           </Select>
         </FormControl>
-      </form>
+        <Button variant="contained" color="primary" onClick={() => this.props.onSubmit(this.state.route)}>
+          Find
+        </Button>
+      </FormGroup>
     )
   }
 }
 
-export const SelectRoute = withStyles(styles)(PureSelectRoute);
+export const SelectRouteForm = withStyles(styles)(PureSelectRoute);

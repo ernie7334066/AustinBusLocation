@@ -9,7 +9,11 @@ const addMarker = (lng: number, lat: number, map: any) => {
     .addTo(map);
 };
 
-export class Map extends React.Component<any, any> {
+interface MapProps {
+  route?: number;
+}
+
+export class Map extends React.Component<MapProps, any> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -44,9 +48,21 @@ export class Map extends React.Component<any, any> {
     });
   }
 
+  // TODO: fill this function.
+  loadRouteData = (routeID?: number): void => {
+    if (routeID) {
+      console.log(`Load route data for: ${this.props.route}`);
+    }
+  };
+
   render() {
     const { lng, lat, zoom } = this.state;
+    this.loadRouteData(this.props.route);
 
+    // TODO: render the route based on data received from backend.
+    console.log(`Display route for: ${this.props.route}`);
+
+    // TODO: adjust height based on screen size.
     return (
       <div>
         <div className="inline-block absolute top left mt12 ml12 bg-darken75 color-white z1 py6 px12 round-full txt-s txt-bold">
