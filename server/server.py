@@ -52,6 +52,7 @@ def bus_stops(route_id):
                     filtered_stop_id_all[trip_id]=[stop_id]
     # Remove repeated sequence of stop IDs. Assume only two possible sequences
     filtered_stop_id = filtered_stop_id_all[filteredTripID[0]]
+    filtered_stop_id2 = []
     for tripID in filteredTripID:
         if filtered_stop_id_all[tripID] != filtered_stop_id:
             filtered_stop_id2 = filtered_stop_id_all[tripID]
