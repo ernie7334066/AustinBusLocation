@@ -1,4 +1,4 @@
-import mapboxgl, { Map as MapBoxMap } from "mapbox-gl";
+import mapboxgl, { GeoJSONSource, Map as MapBoxMap, Marker } from "mapbox-gl";
 import * as React from "react";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
@@ -15,29 +15,58 @@ export interface BusStop {
 }
 
 interface MapState {
-  lng: number;
-  lat: number;
   zoom: number;
   // map is an instance of https://docs.mapbox.com/mapbox-gl-js/api/#map
   map?: MapBoxMap;
+  markers: Marker[];
 }
 
 const defaultCenter: Coordinate = [-97.7431, 30.2672];
+const busStopsSourceID: string = "bus_stops";
+const routeLayerID: string = "route";
+const defaultBusStopMapBoxData: MapBoxData = {
+  type: "Feature",
+  geometry: {
+    type: "LineString",
+    coordinates: []
+  },
+  properties: {}
+};
+
+// const coordinates: Coordinate[] = [
+//   [-97.7431, 30.2672],
+//   [-97.7531, 30.2772],
+// ];
 export declare type Coordinate = [number, number];
+
+declare type MapBoxData =
+  | GeoJSON.Feature<GeoJSON.Geometry>
+  | GeoJSON.FeatureCollection<GeoJSON.Geometry>;
 
 export class Map extends React.Component<MapProps, MapState> {
   constructor(props: MapProps) {
     super(props);
     this.state = {
-      lng: defaultCenter[0],
-      lat: defaultCenter[1],
       zoom: 11.5,
-      map: undefined
+      map: undefined,
+      markers: []
     };
   }
 
+  public componentDidUpdate(prevProps: MapProps, prevState: MapState) {
+    if (this.props.busStops !== prevProps.busStops) {
+      if (
+        this.state.map &&
+        this.state.map.isStyleLoaded() &&
+        this.props.busStops.length !== 0
+      ) {
+        this.renderBusRoute();
+      }
+    }
+  }
+
   public componentDidMount() {
-    const { lng, lat, zoom } = this.state;
+    const { zoom } = this.state;
 
     this.setState(
       {
@@ -49,23 +78,33 @@ export class Map extends React.Component<MapProps, MapState> {
         })
       },
       () => {
-        this.addMarker([lng, lat]);
+        const { map } = this.state;
+        if (map) {
+          map.on("style.load", () => {
+            map.addSource(busStopsSourceID, {
+              type: "geojson",
+              data: defaultBusStopMapBoxData
+            });
+            map.addLayer({
+              id: routeLayerID,
+              type: "line",
+              source: busStopsSourceID,
+              layout: {
+                "line-join": "round",
+                "line-cap": "round"
+              },
+              paint: {
+                "line-color": "#888",
+                "line-width": 8
+              }
+            });
+          });
+        }
       }
     );
   }
 
   public render() {
-    // TODO: render the route based on data received from backend.
-    // tslint:disable-next-line:no-console
-    // console.log(`Display route for: ${this.props.route}`);
-    if (
-      this.state.map &&
-      this.state.map.isStyleLoaded() &&
-      this.props.busStops.length !== 0
-    ) {
-      this.renderBusRoute();
-    }
-
     // TODO: adjust height based on screen size.
     return (
       <div
@@ -81,45 +120,46 @@ export class Map extends React.Component<MapProps, MapState> {
       return [busStop.lng, busStop.lat] as Coordinate;
     });
 
-    this.drawLines(busStops);
+    this.updateBusStopCoordinates(busStops);
   };
 
-  private addMarker = (coordinate: Coordinate) => {
+  private addMarker = (coordinate: Coordinate): Marker | undefined => {
     const { map } = this.state;
     if (map) {
-      new mapboxgl.Marker().setLngLat(coordinate).addTo(map);
+      return new mapboxgl.Marker().setLngLat(coordinate).addTo(map);
     }
   };
 
-  private drawLines = (coordinates: Coordinate[]) => {
-    // const coordinates: Coordinate[] = [
-    //   [-97.7431, 30.2672],
-    //   [-97.7531, 30.2772],
-    // ];
+  private updateBusStopCoordinates = (coordinates: Coordinate[]) => {
     const { map } = this.state;
     if (map) {
-      map.addLayer({
-        id: "route",
-        type: "line",
-        source: {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "LineString",
-              coordinates: coordinates
-            }
+      const source: GeoJSONSource = map.getSource(
+        busStopsSourceID
+      ) as GeoJSONSource;
+      source.setData({
+        ...defaultBusStopMapBoxData,
+        ...{
+          geometry: {
+            type: "LineString",
+            coordinates
           }
-        },
-        layout: {
-          "line-join": "round",
-          "line-cap": "round"
-        },
-        paint: {
-          "line-color": "#888",
-          "line-width": 8
         }
+      });
+
+      // Remove all markers and add new bus stops
+      this.state.markers.map(marker => {
+        marker.remove();
+      });
+
+      const markers: Marker[] = [];
+      coordinates.map(coordinate => {
+        const marker = this.addMarker(coordinate);
+        if (marker) {
+          markers.push(marker);
+        }
+      });
+      this.setState({
+        markers
       });
     }
   };
