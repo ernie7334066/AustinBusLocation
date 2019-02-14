@@ -31,9 +31,7 @@ def all_routes():
 @cross_origin()
 def bus_stops(route_id):
     """ Given a bus route id, returns all the bus stops' positions. """
-    r = requests.get('https://data.texas.gov/download/cuc7-ywmd/text%2Fplain')
-    d = r.json()
-    vehs = d['entity']
+    vehs = loadData()
     # query stop ID using trip ID
     filteredTripID = [veh['vehicle']['trip']['trip_id'] for veh in vehs if
                       int(veh['vehicle']['trip']['route_id']) == route_id]
@@ -73,7 +71,6 @@ def bus_stops(route_id):
             if stop_id in filtered_stop_id2:
                 idx = filtered_stop_id2.index(stop_id)+len(filtered_stop_id)
                 filtered_stop_position[idx] = {'trip_dir':1, 'stop_id': stop_id, 'lat': float(stop_lat), 'lng': float(stop_lon)}                
-    # TODO: Sort bus stops in travel order.
     return json.dumps(filtered_stop_position)
 
 
@@ -81,15 +78,38 @@ def bus_stops(route_id):
 @cross_origin()
 def bus_locations(route_id):
     """ Returns the position of a certain bus route. """
-    r = requests.get('https://data.texas.gov/download/cuc7-ywmd/text%2Fplain')
-    d = r.json()
-    vehs = d['entity']
+    vehs = loadData()
     filteredVehs = [veh for veh in vehs if int(veh['vehicle']['trip']['route_id']) == route_id]
     CurrentTime = int(time.time())
     for veh in filteredVehs:
         veh['vehicle']['timelapse'] = CurrentTime - veh['vehicle']['timestamp']
     return json.dumps(filteredVehs)
 
+@app.route("/departure_time/<int:route_id>/<stopID>")
+@cross_origin()
+def departure_time(route_id,stopID):
+    vehs = loadData()
+    # query trip ID
+    filteredTripID = [veh['vehicle']['trip']['trip_id'] for veh in vehs if
+                      int(veh['vehicle']['trip']['route_id']) == route_id]
+    DepartureTime = []
+    # TODO: fix relative file path such that we can also run `python server/server.py`, not just `python server.py`
+    with open("../capmetro/stop_times.txt") as f:
+        for line in f:
+            (trip_id,arrival_time,departure_time,
+             stop_id,stop_sequence,stop_headsign,
+             pickup_type,drop_off_type,
+             shape_dist_traveled,timepoint) = line.split(",")
+            if trip_id in filteredTripID and stop_id == stopID:
+                DepartureTime.append(departure_time)
+            DepartureTime.sort()
+    return json.dumps(DepartureTime)
+
+def loadData():
+    r = requests.get('https://data.texas.gov/download/cuc7-ywmd/text%2Fplain')
+    d = r.json()
+    vehs = d['entity']
+    return  vehs
 
 if __name__ == '__main__':
     # https://stackoverflow.com/questions/17260338/deploying-flask-with-heroku
