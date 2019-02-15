@@ -9,6 +9,9 @@ This is a project that aim to provide real-time bus location in Austin, Texas
 ### Client
 Please refer to README.md in `client/`
 
+## Run Tests
+`python tests/test_api.py`
+
 # Project Road Map
 * Build a backend API to provide real time data, with filter functionality
 * Build a frontend to display bus locations as well as searching/filtering
