@@ -6,19 +6,32 @@ mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
 interface MapProps {
   route?: number;
   busStops: BusStop[];
+  busLoc: BusLoc[];
 }
 
 export interface BusStop {
   lat: number;
   lng: number;
   stop_id: string;
+  trip_dir: number;
+}
+
+export interface BusLoc {
+  vehicle: {[key:string]:position};
+}
+
+export interface position {
+  latitude: number;
+  longitude: number;
+  speed: number;
 }
 
 interface MapState {
   zoom: number;
   // map is an instance of https://docs.mapbox.com/mapbox-gl-js/api/#map
   map?: MapBoxMap;
-  markers: Marker[];
+  BusStopMarkers: Marker[];
+  BusMarkers: Marker[];
 }
 
 const defaultCenter: Coordinate = [-97.7431, 30.2672];
@@ -49,7 +62,8 @@ export class Map extends React.Component<MapProps, MapState> {
     this.state = {
       zoom: 11.5,
       map: undefined,
-      markers: []
+      BusStopMarkers: [],
+      BusMarkers: [],
     };
   }
 
@@ -61,6 +75,7 @@ export class Map extends React.Component<MapProps, MapState> {
         this.props.busStops.length !== 0
       ) {
         this.renderBusRoute();
+        this.renderBusLoc();
       }
     }
   }
@@ -116,17 +131,25 @@ export class Map extends React.Component<MapProps, MapState> {
   }
 
   private renderBusRoute = () => {
-    const busStops: Coordinate[] = this.props.busStops.map(busStop => {
-      return [busStop.lng, busStop.lat] as Coordinate;
+    const busStops: Coordinate[] = this.props.busStops.map(busStops => {
+      return [busStops.lng, busStops.lat] as Coordinate;
     });
 
     this.updateBusStopCoordinates(busStops);
   };
+  
+  private renderBusLoc = () => {
+    const busLoc: Coordinate[] = this.props.busLoc.map(busLoc => {
+      return [busLoc.vehicle.position.longitude, busLoc.vehicle.position.latitude] as Coordinate;
+    });
 
-  private addMarker = (coordinate: Coordinate): Marker | undefined => {
+    this.updateBusLocCoordinates(busLoc);
+  };
+
+  private addMarker = (coordinate: Coordinate, colorStr: string): Marker | undefined => {
     const { map } = this.state;
     if (map) {
-      return new mapboxgl.Marker().setLngLat(coordinate).addTo(map);
+      return new mapboxgl.Marker({color: colorStr}).setLngLat(coordinate).addTo(map);
     }
   };
 
@@ -147,20 +170,42 @@ export class Map extends React.Component<MapProps, MapState> {
       });
 
       // Remove all markers and add new bus stops
-      this.state.markers.map(marker => {
+      this.state.BusStopMarkers.map(marker => {
         marker.remove();
       });
 
-      const markers: Marker[] = [];
+      const BusStopMarkers: Marker[] = [];
       coordinates.map(coordinate => {
-        const marker = this.addMarker(coordinate);
+        const marker = this.addMarker(coordinate,'blue');
         if (marker) {
-          markers.push(marker);
+          BusStopMarkers.push(marker);
         }
       });
       this.setState({
-        markers
+        BusStopMarkers
       });
     }
   };
+
+  private updateBusLocCoordinates = (coordinates: Coordinate[]) => {
+    const { map } = this.state;
+    if (map) {
+
+      // Remove all markers and add new bus location
+      this.state.BusMarkers.map(marker => {
+        marker.remove();
+      });
+
+      const BusMarkers: Marker[] = [];
+      coordinates.map(coordinate => {
+        const marker = this.addMarker(coordinate,'red');
+        if (marker) {
+          BusMarkers.push(marker);
+        }
+      });
+      this.setState({
+        BusMarkers
+      });
+    }
+  };  
 }
