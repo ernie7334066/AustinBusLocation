@@ -17,13 +17,11 @@ def hello():
 @cross_origin()
 def all_routes():
     """ Returns all bus route IDs """
-    all_routes = []
-    with open("../capmetro/routes.txt") as f:
-        next(f)  # Skip the first line
-        for line in f:
-            (route_id, agency_id, route_short_name, route_long_name, route_desc, route_type, route_url, route_color,
-             route_text_color) = line.split(",")
-            all_routes.append(route_id)
+    vehs = loadData()
+    routes = [int(veh['vehicle']['trip']['route_id']) for veh in vehs]
+    routes_int = list(set(routes))
+    routes_int.sort()
+    all_routes = list(map(str,routes_int))
     return json.dumps(all_routes)
 
 
