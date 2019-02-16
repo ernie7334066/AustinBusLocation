@@ -21,7 +21,7 @@ def all_routes():
     routes = [int(veh['vehicle']['trip']['route_id']) for veh in vehs]
     routes_int = list(set(routes))
     routes_int.sort()
-    all_routes = list(map(str,routes_int))
+    all_routes = list(map(str, routes_int))
     return json.dumps(all_routes)
 
 
@@ -37,15 +37,15 @@ def bus_stops(route_id):
     # TODO: fix relative file path such that we can also run `python server/server.py`, not just `python server.py`
     with open("./capmetro/stop_times.txt") as f:
         for line in f:
-            (trip_id,arrival_time,departure_time,
-             stop_id,stop_sequence,stop_headsign,
-             pickup_type,drop_off_type,
-             shape_dist_traveled,timepoint) = line.split(",")
+            (trip_id, arrival_time, departure_time,
+             stop_id, stop_sequence, stop_headsign,
+             pickup_type, drop_off_type,
+             shape_dist_traveled, timepoint) = line.split(",")
             if trip_id in filteredTripID:
                 if trip_id in filtered_stop_id_all:
                     filtered_stop_id_all[trip_id].append(stop_id)
                 else:
-                    filtered_stop_id_all[trip_id]=[stop_id]
+                    filtered_stop_id_all[trip_id] = [stop_id]
     # Remove repeated sequence of stop IDs. Assume only two possible sequences
     filtered_stop_id = filtered_stop_id_all[filteredTripID[0]]
     filtered_stop_id2 = []
@@ -54,7 +54,7 @@ def bus_stops(route_id):
             filtered_stop_id2 = filtered_stop_id_all[tripID]
             break
     # query stop coordinates using stop ID
-    filtered_stop_position = [None]*(len(filtered_stop_id)+len(filtered_stop_id2))
+    filtered_stop_position = [None] * (len(filtered_stop_id) + len(filtered_stop_id2))
     # TODO: fix relative file path such that we can also run `python server/server.py`, not just `python server.py`
     with open("./capmetro/stops.txt") as f:
         for line in f:
@@ -65,10 +65,12 @@ def bus_stops(route_id):
              on_street, at_street, heading) = line.split(",")
             if stop_id in filtered_stop_id:
                 idx = filtered_stop_id.index(stop_id)
-                filtered_stop_position[idx] = {'trip_dir':0, 'stop_id': stop_id, 'lat': float(stop_lat), 'lng': float(stop_lon)}
+                filtered_stop_position[idx] = {'trip_dir': 0, 'stop_id': stop_id, 'lat': float(stop_lat),
+                                               'lng': float(stop_lon)}
             if stop_id in filtered_stop_id2:
-                idx = filtered_stop_id2.index(stop_id)+len(filtered_stop_id)
-                filtered_stop_position[idx] = {'trip_dir':1, 'stop_id': stop_id, 'lat': float(stop_lat), 'lng': float(stop_lon)}                
+                idx = filtered_stop_id2.index(stop_id) + len(filtered_stop_id)
+                filtered_stop_position[idx] = {'trip_dir': 1, 'stop_id': stop_id, 'lat': float(stop_lat),
+                                               'lng': float(stop_lon)}
     return json.dumps(filtered_stop_position)
 
 
@@ -83,9 +85,10 @@ def bus_locations(route_id):
         veh['vehicle']['timelapse'] = CurrentTime - veh['vehicle']['timestamp']
     return json.dumps(filteredVehs)
 
+
 @app.route("/departure_time/<int:route_id>/<stopID>")
 @cross_origin()
-def departure_time(route_id,stopID):
+def departure_time(route_id, stopID):
     vehs = loadData()
     # query trip ID
     filteredTripID = [veh['vehicle']['trip']['trip_id'] for veh in vehs if
@@ -94,20 +97,22 @@ def departure_time(route_id,stopID):
     # TODO: fix relative file path such that we can also run `python server/server.py`, not just `python server.py`
     with open("../capmetro/stop_times.txt") as f:
         for line in f:
-            (trip_id,arrival_time,departure_time,
-             stop_id,stop_sequence,stop_headsign,
-             pickup_type,drop_off_type,
-             shape_dist_traveled,timepoint) = line.split(",")
+            (trip_id, arrival_time, departure_time,
+             stop_id, stop_sequence, stop_headsign,
+             pickup_type, drop_off_type,
+             shape_dist_traveled, timepoint) = line.split(",")
             if trip_id in filteredTripID and stop_id == stopID:
                 DepartureTime.append(departure_time)
             DepartureTime.sort()
     return json.dumps(DepartureTime)
 
+
 def loadData():
     r = requests.get('https://data.texas.gov/download/cuc7-ywmd/text%2Fplain')
     d = r.json()
     vehs = d['entity']
-    return  vehs
+    return vehs
+
 
 if __name__ == '__main__':
     # https://stackoverflow.com/questions/17260338/deploying-flask-with-heroku

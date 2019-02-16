@@ -1,7 +1,12 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Environment Variables
-They are stored in .env files, for example you will need to add MapBox access token in .env.local by adding this line: ``REACT_APP_MAPBOX_ACCESS_TOKEN = {YOUR_ACCESS_TOKEN}``
+## Quick Start
+
+* Install Dependencies: `npm ci`
+
+* Environment Variables: They are stored in .env files, for example you will need to add MapBox access token in .env.local by adding this line: ``REACT_APP_MAPBOX_ACCESS_TOKEN = {YOUR_ACCESS_TOKEN}``
+
+* Start React App: `npm start`
 
 ## Available Scripts
 

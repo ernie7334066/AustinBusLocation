@@ -1,5 +1,6 @@
 import sys
 import unittest
+import json
 
 sys.path.insert(0, '.')
 sys.path.insert(0, '../')
@@ -14,14 +15,19 @@ class TestCase(unittest.TestCase):
 
     def test_basic(self):
         response = self.app.get('/')
-        assert response.data == "Hello World"
+        self.assertEqual(response.data.decode(), "Hello World")
 
     def test_bus_stops(self):
-        try:
-            response = self.app.get('/bus_stops/990')
-        except Exception:
-            self.fail("/bus_stops/990 raised Exception unexpectedly!")
-        # assert response.data == "abc"
+        response = self.app.get('/bus_stops/990')
+        self.assertEqual(response.data.decode(), "abc")
+
+    def test_all_route_ids(self):
+        response = self.app.get('/all_route_ids')
+        bus_stops = response.data.decode()
+        bus_stops_json = json.loads(bus_stops)
+        for bus_stop in bus_stops_json:
+            print('Get bus stops info for route: ' + bus_stop)
+            bus_stop_response = self.app.get('/bus_stops/' + bus_stop)
 
 
 if __name__ == '__main__':
