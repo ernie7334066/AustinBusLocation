@@ -23,7 +23,7 @@ for veh in vehs:
                   icon=folium.Icon(icon='bus',prefix='fa')).add_to(m)
 # Generate map
 #m.save('map.html')
-route_id = 990
+route_id = 803
 filteredTripID = [veh['vehicle']['trip']['trip_id'] for veh in vehs if
                       int(veh['vehicle']['trip']['route_id']) == route_id]
 
