@@ -33,8 +33,9 @@ def bus_stops(route_id):
     # query stop ID using trip ID
     filteredTripID = [veh['vehicle']['trip']['trip_id'] for veh in vehs if
                       int(veh['vehicle']['trip']['route_id']) == route_id]
+    if len(filteredTripID) == 0:
+        return json.dumps([])        
     filtered_stop_id_all = {}
-    # TODO: fix relative file path such that we can also run `python server/server.py`, not just `python server.py`
     with open("./capmetro/stop_times.txt") as f:
         for line in f:
             (trip_id, arrival_time, departure_time,
@@ -55,7 +56,6 @@ def bus_stops(route_id):
             break
     # query stop coordinates using stop ID
     filtered_stop_position = [None] * (len(filtered_stop_id) + len(filtered_stop_id2))
-    # TODO: fix relative file path such that we can also run `python server/server.py`, not just `python server.py`
     with open("./capmetro/stops.txt") as f:
         for line in f:
             (stop_id, stop_code, stop_name, stop_desc,
@@ -94,8 +94,7 @@ def departure_time(route_id, stopID):
     filteredTripID = [veh['vehicle']['trip']['trip_id'] for veh in vehs if
                       int(veh['vehicle']['trip']['route_id']) == route_id]
     DepartureTime = []
-    # TODO: fix relative file path such that we can also run `python server/server.py`, not just `python server.py`
-    with open("../capmetro/stop_times.txt") as f:
+    with open("./capmetro/stop_times.txt") as f:
         for line in f:
             (trip_id, arrival_time, departure_time,
              stop_id, stop_sequence, stop_headsign,

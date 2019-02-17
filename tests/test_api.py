@@ -18,7 +18,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(response.data.decode(), "Hello World")
 
     def test_bus_stops(self):
-        response = self.app.get('/bus_stops/990')
+        response = self.app.get('/bus_stops/803')
         self.assertEqual(response.data.decode(), "abc")
 
     def test_all_route_ids(self):
