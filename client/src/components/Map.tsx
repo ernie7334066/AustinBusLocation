@@ -118,12 +118,16 @@ export class Map extends React.Component<MapProps, MapState> {
   }
 
   public render() {
-    // TODO: adjust height based on screen size.
+    var w = window,
+    d = document,
+    e = d.documentElement,
+    g = d.getElementsByTagName('body')[0],
+    height_value = w.innerHeight|| e.clientHeight|| g.clientHeight;
     return (
       <div
         id="map"
         className="absolute top right left bottom"
-        style={{ height: 800, width: "100%" }}
+        style={{ height: height_value, width: "100%" }}
       />
     );
   }
