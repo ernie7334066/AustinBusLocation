@@ -12,6 +12,9 @@ Please refer to README.md in `client/`
 ## Run Tests
 `python tests/test_api.py`
 
+## Python Linting
+`pylint server`
+
 # Project Road Map
 * Build a backend API to provide real time data, with filter functionality
 * Build a frontend to display bus locations as well as searching/filtering
