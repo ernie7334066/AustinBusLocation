@@ -8,6 +8,14 @@ sys.path.insert(0, '../')
 from server.server import app
 
 
+def check_bus_stop_keys(unittest, bus_stops):
+    for bus_stop_dict in bus_stops:
+        expected = dict(lat=0, lng=0, stop_id=5880, trip_dir=0)
+        for key in expected:
+            unittest.assertIn(key, set(bus_stop_dict.keys()))
+            expected[key] = bus_stop_dict[key]
+        unittest.assertDictEqual(bus_stop_dict, expected)
+
 class TestCase(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
@@ -21,21 +29,18 @@ class TestCase(unittest.TestCase):
         response = self.app.get('/bus_stops/803')
         bus_stops = response.data.decode()
         bus_stops_json = json.loads(bus_stops)
-        first_bus_stop_dict = bus_stops_json[0]
-
-        expected = dict(lat=0, lng=0, stop_id=5880, trip_dir=0)
-        for key in expected:
-            self.assertIn(key, set(first_bus_stop_dict.keys()))
-            expected[key] = first_bus_stop_dict[key]
-        self.assertDictEqual(first_bus_stop_dict, expected)
+        check_bus_stop_keys(self, bus_stops_json)
 
     def test_all_route_ids(self):
         response = self.app.get('/all_route_ids')
-        bus_stops = response.data.decode()
-        bus_stops_json = json.loads(bus_stops)
-        for bus_stop in bus_stops_json:
-            print('Get bus stops info for route: ' + bus_stop)
-            bus_stop_response = self.app.get('/bus_stops/' + bus_stop)
+        route_ids = response.data.decode()
+        route_ids_json = json.loads(route_ids)
+        for route_id in route_ids_json:
+            print('Get bus stops info for route: ' + route_id)
+            bus_stop_response = self.app.get('/bus_stops/' + route_id)
+            bus_stops = bus_stop_response.data.decode()
+            bus_stops_json = json.loads(bus_stops)
+            check_bus_stop_keys(self, bus_stops_json)
 
 
 if __name__ == '__main__':
