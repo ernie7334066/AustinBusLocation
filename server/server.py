@@ -44,7 +44,9 @@ def bus_stops(route_id):
              shape_dist_traveled, timepoint) = line.split(",")
             if trip_id in filteredTripID:
                 if trip_id in filtered_stop_id_all:
-                    filtered_stop_id_all[trip_id].append(stop_id)
+                    # make sure there are no repeating stopIDs
+                    if filtered_stop_id_all[trip_id][-1] != stop_id:
+                        filtered_stop_id_all[trip_id].append(stop_id)
                 else:
                     filtered_stop_id_all[trip_id] = [stop_id]
     # Remove repeated sequence of stop IDs. Assume only two possible sequences
@@ -65,11 +67,15 @@ def bus_stops(route_id):
              on_street, at_street, heading) = line.split(",")
             if stop_id in filtered_stop_id:
                 idx = filtered_stop_id.index(stop_id)
-                filtered_stop_position[idx] = {'trip_dir': 0, 'stop_id': stop_id, 'lat': float(stop_lat),
+                filtered_stop_position[idx] = {'trip_dir': 0, 
+                                               'stop_id': stop_id, 
+                                               'lat': float(stop_lat),
                                                'lng': float(stop_lon)}
             if stop_id in filtered_stop_id2:
                 idx = filtered_stop_id2.index(stop_id) + len(filtered_stop_id)
-                filtered_stop_position[idx] = {'trip_dir': 1, 'stop_id': stop_id, 'lat': float(stop_lat),
+                filtered_stop_position[idx] = {'trip_dir': 1,
+                                               'stop_id': stop_id, 
+                                               'lat': float(stop_lat),
                                                'lng': float(stop_lon)}
     return json.dumps(filtered_stop_position)
 
