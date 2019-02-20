@@ -8,7 +8,7 @@ mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
 interface MapProps {
   route?: number;
   busStops: BusStop[];
-  busLoc: BusLoc[];
+  busVehicles: BusVehicle[];
 }
 
 export interface BusStop {
@@ -18,11 +18,11 @@ export interface BusStop {
   trip_dir: number;
 }
 
-export interface BusLoc {
-  vehicle: {
-    timestamp: number;
-    position: { latitude: number; longitude: number; speed: number };
-  };
+export interface BusVehicle {
+  timestamp: number;
+  stop_id: number;
+  position: { latitude: number; longitude: number; speed: number };
+  vehicle: { license_plate: string; id: string };
 }
 
 interface MapState {
@@ -45,7 +45,7 @@ const defaultBusStopMapBoxData: MapBoxData = {
   properties: {}
 };
 
-// const coordinates: Coordinate[] = [
+// const coordinates: Coordinate[lng, lat] = [
 //   [-97.7431, 30.2672],
 //   [-97.7531, 30.2772],
 // ];
@@ -69,7 +69,7 @@ export class Map extends React.Component<MapProps, MapState> {
   public componentDidUpdate(prevProps: MapProps, prevState: MapState) {
     if (
       this.props.busStops !== prevProps.busStops ||
-      this.props.busLoc !== prevProps.busLoc
+      this.props.busVehicles !== prevProps.busVehicles
     ) {
       if (
         this.state.map &&
@@ -77,7 +77,7 @@ export class Map extends React.Component<MapProps, MapState> {
         this.props.busStops.length !== 0
       ) {
         this.renderBusRoute();
-        this.renderBusLoc();
+        this.renderBusVehicles();
       }
     }
   }
@@ -144,18 +144,8 @@ export class Map extends React.Component<MapProps, MapState> {
     this.updateBusStopCoordinates(busStops);
   };
 
-  private renderBusLoc = () => {
-    const timestamp: number[] = this.props.busLoc.map(busLoc => {
-      return busLoc.vehicle.timestamp;
-    });
-    const busLoc: Coordinate[] = this.props.busLoc.map(busLoc => {
-      return [
-        busLoc.vehicle.position.longitude,
-        busLoc.vehicle.position.latitude
-      ] as Coordinate;
-    });
-
-    this.updateBusLocCoordinates(busLoc, timestamp);
+  private renderBusVehicles = () => {
+    this.updateBusVehicleCoordinatesAndInfo(this.props.busVehicles);
   };
 
   private addMarker = (coordinate: Coordinate): Marker | undefined => {
@@ -167,7 +157,7 @@ export class Map extends React.Component<MapProps, MapState> {
 
   private addBusMarker = (
     coordinate: Coordinate,
-    timestamp: number
+    busVehicle: BusVehicle
   ): Marker | undefined => {
     const { map } = this.state;
     if (map) {
@@ -178,7 +168,7 @@ export class Map extends React.Component<MapProps, MapState> {
         .setPopup(
           new mapboxgl.Popup({ offset: 25 }).setHTML(
             ReactDOMServer.renderToStaticMarkup(
-              <MapPopup timestamp={timestamp} />
+              <MapPopup busVehicle={busVehicle} />
             )
           )
         )
@@ -220,10 +210,7 @@ export class Map extends React.Component<MapProps, MapState> {
     }
   };
 
-  private updateBusLocCoordinates = (
-    coordinates: Coordinate[],
-    timestamp: number[]
-  ) => {
+  private updateBusVehicleCoordinatesAndInfo = (vehicles: BusVehicle[]) => {
     const { map } = this.state;
     if (map) {
       // Remove all markers and add new bus location
@@ -232,8 +219,11 @@ export class Map extends React.Component<MapProps, MapState> {
       });
 
       const BusMarkers: Marker[] = [];
-      coordinates.map((coordinate, index) => {
-        const marker = this.addBusMarker(coordinate, timestamp[index]);
+      vehicles.map((vehicle, index) => {
+        const marker = this.addBusMarker(
+          [vehicle.position.longitude, vehicle.position.latitude],
+          vehicle
+        );
         if (marker) {
           BusMarkers.push(marker);
         }

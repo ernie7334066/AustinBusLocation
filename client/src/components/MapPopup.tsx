@@ -1,7 +1,8 @@
-import * as React from "react";
 import Moment from "moment";
+import * as React from "react";
+import { BusVehicle } from "./Map";
 interface MapPopupProps {
-  timestamp: number;
+  busVehicle: BusVehicle;
 }
 
 export const MapPopup: React.FunctionComponent<MapPopupProps> = (
@@ -9,8 +10,9 @@ export const MapPopup: React.FunctionComponent<MapPopupProps> = (
 ) => {
   return (
     <React.Fragment>
-      <h3>Last update</h3>
-      <p> {Moment.unix(props.timestamp).format("LT")} </p>
+      <h3>License ID: {props.busVehicle.vehicle.license_plate}</h3>
+      Stop: {props.busVehicle.stop_id}
+      <p> Update: {Moment.unix(props.busVehicle.timestamp).format("LT")} </p>
     </React.Fragment>
   );
 };

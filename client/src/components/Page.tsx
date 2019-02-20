@@ -1,12 +1,12 @@
 import * as React from "react";
 import { Header } from "./Header";
-import { BusStop, BusLoc, Map } from "./Map";
+import { BusStop, BusVehicle, Map } from "./Map";
 import { SelectRouteForm } from "./SelectRouteForm";
 
 interface PageState {
   route?: number;
   busStops: BusStop[];
-  busLoc: BusLoc[];
+  busVehicles: BusVehicle[];
 }
 
 export class Page extends React.Component<any, PageState> {
@@ -14,7 +14,7 @@ export class Page extends React.Component<any, PageState> {
     super(props);
     this.state = {
       busStops: [],
-      busLoc: [],
+      busVehicles: [],
       route: undefined
     };
   }
@@ -38,7 +38,10 @@ export class Page extends React.Component<any, PageState> {
           fetch(`http://localhost:5000/bus_locations/${routeID}`).then(
             response => {
               response.json().then(body => {
-                this.setState({ busLoc: body });
+                console.log(body);
+                this.setState({
+                  busVehicles: body.map((vehicle: any) => vehicle.vehicle)
+                });
               });
             }
           );
@@ -54,7 +57,7 @@ export class Page extends React.Component<any, PageState> {
         <Map
           route={this.state.route}
           busStops={this.state.busStops}
-          busLoc={this.state.busLoc}
+          busVehicles={this.state.busVehicles}
         />
       </React.Fragment>
     );
