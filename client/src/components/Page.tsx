@@ -28,16 +28,21 @@ export class Page extends React.Component<any, PageState> {
     if (routeID) {
       // tslint:disable-next-line:no-console
       console.log(`Load route data for: ${routeID}`);
-      fetch(`http://localhost:5000/bus_stops/${routeID}`).then(response => {
-        response.json().then(body => {
-          this.setState({ busStops: body });
+      fetch(`http://localhost:5000/bus_stops/${routeID}`)
+        .then(response => {
+          response.json().then(body => {
+            this.setState({ busStops: body });
+          });
+        })
+        .then(() => {
+          fetch(`http://localhost:5000/bus_locations/${routeID}`).then(
+            response => {
+              response.json().then(body => {
+                this.setState({ busLoc: body });
+              });
+            }
+          );
         });
-      });
-      fetch(`http://localhost:5000/bus_locations/${routeID}`).then(response => {
-        response.json().then(body => {
-          this.setState({ busLoc: body });
-        });
-      });
     }
   };
 
@@ -46,7 +51,11 @@ export class Page extends React.Component<any, PageState> {
       <React.Fragment>
         <Header />
         <SelectRouteForm onSubmit={this.setRoute} />
-        <Map route={this.state.route} busStops={this.state.busStops} busLoc={this.state.busLoc}/>
+        <Map
+          route={this.state.route}
+          busStops={this.state.busStops}
+          busLoc={this.state.busLoc}
+        />
       </React.Fragment>
     );
   }

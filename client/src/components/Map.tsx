@@ -1,5 +1,7 @@
 import mapboxgl, { GeoJSONSource, Map as MapBoxMap, Marker } from "mapbox-gl";
 import * as React from "react";
+import ReactDOMServer from "react-dom/server";
+import { MapPopup } from "./MapPopup";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
 
@@ -17,10 +19,10 @@ export interface BusStop {
 }
 
 export interface BusLoc {
-  vehicle: {timelapse: number;
-            position: {latitude: number;
-                       longitude: number;
-                       speed: number}};
+  vehicle: {
+    timelapse: number;
+    position: { latitude: number; longitude: number; speed: number };
+  };
 }
 
 interface MapState {
@@ -60,12 +62,15 @@ export class Map extends React.Component<MapProps, MapState> {
       zoom: 11.5,
       map: undefined,
       BusStopMarkers: [],
-      BusMarkers: [],
+      BusMarkers: []
     };
   }
 
   public componentDidUpdate(prevProps: MapProps, prevState: MapState) {
-    if (this.props.busStops !== prevProps.busStops) {
+    if (
+      this.props.busStops !== prevProps.busStops ||
+      this.props.busLoc !== prevProps.busLoc
+    ) {
       if (
         this.state.map &&
         this.state.map.isStyleLoaded() &&
@@ -73,7 +78,7 @@ export class Map extends React.Component<MapProps, MapState> {
       ) {
         this.renderBusRoute();
         this.renderBusLoc();
-        console.log(this.props.busLoc)
+        console.log(this.props.busLoc);
       }
     }
   }
@@ -118,37 +123,41 @@ export class Map extends React.Component<MapProps, MapState> {
   }
 
   public render() {
-    var w = window,
-    d = document,
-    e = d.documentElement,
-    g = d.getElementsByTagName('body')[0],
-    height_value = w.innerHeight|| e.clientHeight|| g.clientHeight;
+    const w = window;
+    const d = document;
+    const e = d.documentElement;
+    const g = d.getElementsByTagName("body")[0];
+    const heightValue = w.innerHeight || e.clientHeight || g.clientHeight;
     return (
       <div
         id="map"
         className="absolute top right left bottom"
-        style={{ height: height_value, width: "100%" }}
+        style={{ height: heightValue, width: "100%" }}
       />
     );
   }
 
   private renderBusRoute = () => {
-    const busStops: Coordinate[] = this.props.busStops.map(busStops => {
-      return [busStops.lng, busStops.lat] as Coordinate;
+    const busStops: Coordinate[] = this.props.busStops.map(busStop => {
+      console.log(busStop);
+      return [busStop.lng, busStop.lat] as Coordinate;
     });
 
     this.updateBusStopCoordinates(busStops);
   };
-  
+
   private renderBusLoc = () => {
     const timelapse: number[] = this.props.busLoc.map(busLoc => {
-      return busLoc.vehicle.timelapse
+      return busLoc.vehicle.timelapse;
     });
     const busLoc: Coordinate[] = this.props.busLoc.map(busLoc => {
-      return [busLoc.vehicle.position.longitude, busLoc.vehicle.position.latitude] as Coordinate;
+      return [
+        busLoc.vehicle.position.longitude,
+        busLoc.vehicle.position.latitude
+      ] as Coordinate;
     });
 
-    this.updateBusLocCoordinates(busLoc,timelapse);
+    this.updateBusLocCoordinates(busLoc, timelapse);
   };
 
   private addMarker = (coordinate: Coordinate): Marker | undefined => {
@@ -158,15 +167,24 @@ export class Map extends React.Component<MapProps, MapState> {
     }
   };
 
-  private addBusMarker = (coordinate: Coordinate, timelapse: number): Marker | undefined => {
+  private addBusMarker = (
+    coordinate: Coordinate,
+    timelapse: number
+  ): Marker | undefined => {
     const { map } = this.state;
     if (map) {
-      var el = document.createElement('div');
-      el.className = 'BusMarker';
-      return new mapboxgl.Marker(el).setLngLat(coordinate)
-      .setPopup(new mapboxgl.Popup({ offset: 25 })
-      .setHTML('<h3>' + 'Last update' + '</h3><p>' + timelapse + ' sec ago </p>'))
-      .addTo(map);
+      const el: HTMLElementTagNameMap["div"] = document.createElement("div");
+      el.className = "BusMarker";
+      return new mapboxgl.Marker(el)
+        .setLngLat(coordinate)
+        .setPopup(
+          new mapboxgl.Popup({ offset: 25 }).setHTML(
+            ReactDOMServer.renderToStaticMarkup(
+              <MapPopup timelapse={timelapse} />
+            )
+          )
+        )
+        .addTo(map);
     }
   };
 
@@ -204,7 +222,10 @@ export class Map extends React.Component<MapProps, MapState> {
     }
   };
 
-  private updateBusLocCoordinates = (coordinates: Coordinate[], timelapses: number[]) => {
+  private updateBusLocCoordinates = (
+    coordinates: Coordinate[],
+    timelapses: number[]
+  ) => {
     const { map } = this.state;
     if (map) {
       // Remove all markers and add new bus location
@@ -213,8 +234,8 @@ export class Map extends React.Component<MapProps, MapState> {
       });
 
       const BusMarkers: Marker[] = [];
-      coordinates.map((coordinate,index) => {
-        const marker = this.addBusMarker(coordinate,timelapses[index]);
+      coordinates.map((coordinate, index) => {
+        const marker = this.addBusMarker(coordinate, timelapses[index]);
         if (marker) {
           BusMarkers.push(marker);
         }
@@ -223,5 +244,5 @@ export class Map extends React.Component<MapProps, MapState> {
         BusMarkers
       });
     }
-  };  
+  };
 }
