@@ -25,12 +25,6 @@ class TestCase(unittest.TestCase):
         response = self.app.get('/')
         self.assertEqual(response.data.decode(), "Hello World")
 
-    def test_bus_stops(self):
-        response = self.app.get('/bus_stops/803')
-        bus_stops = response.data.decode()
-        bus_stops_json = json.loads(bus_stops)
-        check_bus_stop_keys(self, bus_stops_json)
-
     def test_all_route_ids(self):
         response = self.app.get('/all_route_ids')
         route_ids = response.data.decode()

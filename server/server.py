@@ -45,7 +45,7 @@ def bus_stops(route_id):
             if trip_id in filteredTripID:
                 if trip_id in filtered_stop_id_all:
                     # make sure there are no repeating stopIDs
-                    if filtered_stop_id_all[trip_id][-1] != stop_id:
+                    if stop_id not in filtered_stop_id_all[trip_id]:
                         filtered_stop_id_all[trip_id].append(stop_id)
                 else:
                     filtered_stop_id_all[trip_id] = [stop_id]
@@ -77,7 +77,9 @@ def bus_stops(route_id):
                                                'stop_id': stop_id, 
                                                'lat': float(stop_lat),
                                                'lng': float(stop_lon)}
-    return json.dumps(filtered_stop_position)
+    # remove any empty list
+    filtered_stop_position_clean = [stop for stop in filtered_stop_position if stop]
+    return json.dumps(filtered_stop_position_clean)
 
 
 @app.route("/bus_locations/<int:route_id>")
