@@ -20,7 +20,7 @@ export interface BusStop {
 
 export interface BusLoc {
   vehicle: {
-    timelapse: number;
+    timestamp: number;
     position: { latitude: number; longitude: number; speed: number };
   };
 }
@@ -78,7 +78,6 @@ export class Map extends React.Component<MapProps, MapState> {
       ) {
         this.renderBusRoute();
         this.renderBusLoc();
-        console.log(this.props.busLoc);
       }
     }
   }
@@ -139,7 +138,6 @@ export class Map extends React.Component<MapProps, MapState> {
 
   private renderBusRoute = () => {
     const busStops: Coordinate[] = this.props.busStops.map(busStop => {
-      console.log(busStop);
       return [busStop.lng, busStop.lat] as Coordinate;
     });
 
@@ -147,8 +145,8 @@ export class Map extends React.Component<MapProps, MapState> {
   };
 
   private renderBusLoc = () => {
-    const timelapse: number[] = this.props.busLoc.map(busLoc => {
-      return busLoc.vehicle.timelapse;
+    const timestamp: number[] = this.props.busLoc.map(busLoc => {
+      return busLoc.vehicle.timestamp;
     });
     const busLoc: Coordinate[] = this.props.busLoc.map(busLoc => {
       return [
@@ -157,7 +155,7 @@ export class Map extends React.Component<MapProps, MapState> {
       ] as Coordinate;
     });
 
-    this.updateBusLocCoordinates(busLoc, timelapse);
+    this.updateBusLocCoordinates(busLoc, timestamp);
   };
 
   private addMarker = (coordinate: Coordinate): Marker | undefined => {
@@ -169,7 +167,7 @@ export class Map extends React.Component<MapProps, MapState> {
 
   private addBusMarker = (
     coordinate: Coordinate,
-    timelapse: number
+    timestamp: number
   ): Marker | undefined => {
     const { map } = this.state;
     if (map) {
@@ -180,7 +178,7 @@ export class Map extends React.Component<MapProps, MapState> {
         .setPopup(
           new mapboxgl.Popup({ offset: 25 }).setHTML(
             ReactDOMServer.renderToStaticMarkup(
-              <MapPopup timelapse={timelapse} />
+              <MapPopup timestamp={timestamp} />
             )
           )
         )
@@ -224,7 +222,7 @@ export class Map extends React.Component<MapProps, MapState> {
 
   private updateBusLocCoordinates = (
     coordinates: Coordinate[],
-    timelapses: number[]
+    timestamp: number[]
   ) => {
     const { map } = this.state;
     if (map) {
@@ -235,7 +233,7 @@ export class Map extends React.Component<MapProps, MapState> {
 
       const BusMarkers: Marker[] = [];
       coordinates.map((coordinate, index) => {
-        const marker = this.addBusMarker(coordinate, timelapses[index]);
+        const marker = this.addBusMarker(coordinate, timestamp[index]);
         if (marker) {
           BusMarkers.push(marker);
         }
