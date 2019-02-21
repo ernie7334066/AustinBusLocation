@@ -1,10 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 15.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" focusable="false" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-	 x="0px" y="0px" width="662.353px" height="662.353px" viewBox="-33.536 5.232 662.353 662.353"
-	 enable-background="new -33.536 5.232 662.353 662.353" xml:space="preserve">
-<path d="M508.861,219.874h-7.283v-43.701c0-40.788-90.316-72.835-203.938-72.835c-113.621,0-203.936,32.047-203.936,72.835v43.701
+<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bus" class="svg-inline--fa fa-bus fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700"><path d="M508.861,219.874h-7.283v-43.701c0-40.788-90.316-72.835-203.938-72.835c-113.621,0-203.936,32.047-203.936,72.835v43.701
 	H86.42c-12.063,0-21.851,9.778-21.851,21.85v72.835c0,12.063,9.787,21.851,21.851,21.851h7.283v145.668
 	c0,16.088,13.046,29.133,29.134,29.133v29.135c0,16.088,13.046,29.133,29.134,29.133h29.134c16.088,0,29.134-13.045,29.134-29.133
 	v-29.135h174.804v29.135c0,16.088,13.046,29.133,29.133,29.133h29.135c16.087,0,29.133-13.045,29.133-29.133v-29.135h5.827
@@ -16,5 +10,4 @@
 	s13.046-29.133,29.133-29.133s29.135,13.045,29.135,29.133S444.828,467.51,428.741,467.51z"/>
 <g>
 	<polygon points="347.777,581.232 297.923,667.585 248.06,581.232 	"/>
-</g>
-</svg>
+</g></svg>
