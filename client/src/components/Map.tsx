@@ -15,13 +15,18 @@ export interface BusStop {
   lat: number;
   lng: number;
   stop_id: string;
-  trip_dir: number;
+  tripID: string;
 }
 
 export interface BusVehicle {
   timestamp: number;
   stop_id: number;
-  position: { latitude: number; longitude: number; speed: number };
+  position: {
+    latitude: number;
+    longitude: number;
+    speed: number;
+    bearing: number;
+  };
   vehicle: { license_plate: string; id: string };
 }
 
@@ -78,6 +83,7 @@ export class Map extends React.Component<MapProps, MapState> {
       ) {
         this.renderBusRoute();
         this.renderBusVehicles();
+        console.log(this.props.busStops);
       }
     }
   }
@@ -161,8 +167,9 @@ export class Map extends React.Component<MapProps, MapState> {
   ): Marker | undefined => {
     const { map } = this.state;
     if (map) {
+      const bearing_str = this.readBearing(busVehicle.position.bearing);
       const el: HTMLElementTagNameMap["div"] = document.createElement("div");
-      el.className = "BusMarker";
+      el.className = "BusMarker_" + bearing_str;
       return new mapboxgl.Marker(el)
         .setLngLat(coordinate)
         .setPopup(
@@ -174,6 +181,21 @@ export class Map extends React.Component<MapProps, MapState> {
         )
         .addTo(map);
     }
+  };
+
+  private readBearing = (bearing: number) => {
+    var bearing_str: string = "N";
+    const binHalfWidth: number = 45 / 2;
+    const bearing_list: string[] = ["NE", "E", "SE", "S", "SW", "W", "NW"];
+    for (var i = 0; i < bearing_list.length; i++) {
+      if (
+        bearing >= 45 * (i + 1) - binHalfWidth &&
+        bearing < 45 * (i + 1) + binHalfWidth
+      ) {
+        bearing_str = bearing_list[i];
+      }
+    }
+    return bearing_str;
   };
 
   private updateBusStopCoordinates = (coordinates: Coordinate[]) => {

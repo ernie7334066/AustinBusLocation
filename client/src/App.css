@@ -22,12 +22,75 @@
   color: #61dafb;
 }
 
-.BusMarker {
-  background-image: url('bus-solid.svg');
+.BusMarker_N {
+  background-image: url('bus-solid_N.svg');
   background-size: cover;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  cursor: pointer;
+}
+
+.BusMarker_NE {
+  background-image: url('bus-solid_NE.svg');
+  background-size: cover;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  cursor: pointer;
+}
+
+.BusMarker_E {
+  background-image: url('bus-solid_E.svg');
+  background-size: cover;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  cursor: pointer;
+}
+
+.BusMarker_SE {
+  background-image: url('bus-solid_SE.svg');
+  background-size: cover;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  cursor: pointer;
+}
+
+.BusMarker_S {
+  background-image: url('bus-solid_S.svg');
+  background-size: cover;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  cursor: pointer;
+}
+
+.BusMarker_SW {
+  background-image: url('bus-solid_SW.svg');
+  background-size: cover;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  cursor: pointer;
+}
+
+.BusMarker_W {
+  background-image: url('bus-solid_W.svg');
+  background-size: cover;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  cursor: pointer;
+}
+
+.BusMarker_NW {
+  background-image: url('bus-solid_NW.svg');
+  background-size: cover;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
   cursor: pointer;
 }
 
