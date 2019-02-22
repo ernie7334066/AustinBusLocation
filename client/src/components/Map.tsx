@@ -83,7 +83,7 @@ export class Map extends React.Component<MapProps, MapState> {
       ) {
         this.renderBusRoute();
         this.renderBusVehicles();
-        console.log(this.props.busVehicles);
+        console.log(this.props.busStops);
       }
     }
   }
@@ -186,9 +186,6 @@ export class Map extends React.Component<MapProps, MapState> {
   private readBearing = (bearing: number) => {
     var bearing_str: string = "N";
     const binHalfWidth: number = 45 / 2;
-    if (bearing >= 360 - binHalfWidth || bearing < 0 + binHalfWidth) {
-      bearing_str = "N";
-    }
     const bearing_list: string[] = ["NE", "E", "SE", "S", "SW", "W", "NW"];
     for (var i = 0; i < bearing_list.length; i++) {
       if (
