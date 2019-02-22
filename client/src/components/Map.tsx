@@ -15,7 +15,7 @@ export interface BusStop {
   lat: number;
   lng: number;
   stop_id: string;
-  trip_dir: number;
+  tripID: string;
 }
 
 export interface BusVehicle {

@@ -7,6 +7,7 @@ interface PageState {
   route?: number;
   busStops: BusStop[];
   busVehicles: BusVehicle[];
+  routeShape: Coordinates[];
 }
 
 export class Page extends React.Component<any, PageState> {
@@ -15,7 +16,8 @@ export class Page extends React.Component<any, PageState> {
     this.state = {
       busStops: [],
       busVehicles: [],
-      route: undefined
+      route: undefined,
+      routeShape: []
     };
   }
 

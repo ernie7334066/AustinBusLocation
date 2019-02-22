@@ -67,13 +67,13 @@ def bus_stops(route_id):
              on_street, at_street, heading) = line.split(",")
             if stop_id in filtered_stop_id:
                 idx = filtered_stop_id.index(stop_id)
-                filtered_stop_position[idx] = {'trip_dir': 0, 
+                filtered_stop_position[idx] = {'tripID': filteredTripID[0], 
                                                'stop_id': stop_id, 
                                                'lat': float(stop_lat),
                                                'lng': float(stop_lon)}
             if stop_id in filtered_stop_id2:
                 idx = filtered_stop_id2.index(stop_id) + len(filtered_stop_id)
-                filtered_stop_position[idx] = {'trip_dir': 1,
+                filtered_stop_position[idx] = {'tripID': tripID,
                                                'stop_id': stop_id, 
                                                'lat': float(stop_lat),
                                                'lng': float(stop_lon)}
@@ -113,6 +113,29 @@ def departure_time(route_id, stopID):
             DepartureTime.sort()
     return json.dumps(DepartureTime)
 
+@app.route("/route_shape/<tripID>")
+@cross_origin()
+def route_shape(tripID):
+    # query shapeID using tripID
+    with open("./capmetro/trips.txt") as f:
+        for line in f:
+            (route_id,service_id,trip_id,
+             trip_headsign,trip_short_name,
+             direction_id,block_id,shape_id,
+             wheelchair_accessible,bikes_allowed,
+             dir_abbr) = line.split(",")
+            if tripID == trip_id:
+                break 
+    # query coordinates using shape_id
+    coordinates = [];
+    with open("./capmetro/shapes.txt") as f:
+        for line in f:
+            (shape_id2,shape_pt_lat,shape_pt_lon,
+             shape_pt_sequence,shape_dist_traveled) = line.split(",")
+            if shape_id == shape_id2:
+               coordinates.append({'lat': float(shape_pt_lat),
+                                   'lon': float(shape_pt_lon)})
+    return json.dumps(coordinates)
 
 def loadData():
     r = requests.get('https://data.texas.gov/download/cuc7-ywmd/text%2Fplain')
