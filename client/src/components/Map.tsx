@@ -7,7 +7,10 @@ mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
 
 interface MapProps {
   route?: number;
-  busStops: BusStop[];
+  busRoute: {
+    busStops: BusStop[];
+    busRouteShapes: BusRouteShapes[];
+  };
   busVehicles: BusVehicle[];
 }
 
@@ -16,6 +19,11 @@ export interface BusStop {
   lng: number;
   stop_id: string;
   tripID: string;
+}
+
+export interface BusRouteShapes {
+  lat: number;
+  lng: number;
 }
 
 export interface BusVehicle {
@@ -73,17 +81,17 @@ export class Map extends React.Component<MapProps, MapState> {
 
   public componentDidUpdate(prevProps: MapProps, prevState: MapState) {
     if (
-      this.props.busStops !== prevProps.busStops ||
+      this.props.busRoute.busStops !== prevProps.busRoute.busStops ||
       this.props.busVehicles !== prevProps.busVehicles
     ) {
       if (
         this.state.map &&
         this.state.map.isStyleLoaded() &&
-        this.props.busStops.length !== 0
+        this.props.busRoute.busStops.length !== 0
       ) {
         this.renderBusRoute();
         this.renderBusVehicles();
-        console.log(this.props.busStops);
+        console.log(this.props.busRoute.busStops);
       }
     }
   }
@@ -143,11 +151,19 @@ export class Map extends React.Component<MapProps, MapState> {
   }
 
   private renderBusRoute = () => {
-    const busStops: Coordinate[] = this.props.busStops.map(busStop => {
+    const busStops: Coordinate[] = this.props.busRoute.busStops.map(busStop => {
       return [busStop.lng, busStop.lat] as Coordinate;
     });
 
     this.updateBusStopCoordinates(busStops);
+
+    const busRouteShapes: Coordinate[] = this.props.busRoute.busRouteShapes.map(
+      busRouteShape => {
+        return [busRouteShape.lng, busRouteShape.lat] as Coordinate;
+      }
+    );
+
+    this.updateBusRouteShapeCoordinates(busRouteShapes);
   };
 
   private renderBusVehicles = () => {
@@ -201,19 +217,6 @@ export class Map extends React.Component<MapProps, MapState> {
   private updateBusStopCoordinates = (coordinates: Coordinate[]) => {
     const { map } = this.state;
     if (map) {
-      const source: GeoJSONSource = map.getSource(
-        busStopsSourceID
-      ) as GeoJSONSource;
-      source.setData({
-        ...defaultBusStopMapBoxData,
-        ...{
-          geometry: {
-            type: "LineString",
-            coordinates
-          }
-        }
-      });
-
       // Remove all markers and add new bus stops
       this.state.BusStopMarkers.map(marker => {
         marker.remove();
@@ -228,6 +231,24 @@ export class Map extends React.Component<MapProps, MapState> {
       });
       this.setState({
         BusStopMarkers
+      });
+    }
+  };
+
+  private updateBusRouteShapeCoordinates = (coordinates: Coordinate[]) => {
+    const { map } = this.state;
+    if (map) {
+      const source: GeoJSONSource = map.getSource(
+        busStopsSourceID
+      ) as GeoJSONSource;
+      source.setData({
+        ...defaultBusStopMapBoxData,
+        ...{
+          geometry: {
+            type: "LineString",
+            coordinates
+          }
+        }
       });
     }
   };

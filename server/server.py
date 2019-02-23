@@ -79,7 +79,13 @@ def bus_stops(route_id):
                                                'lng': float(stop_lon)}
     # remove any empty list
     filtered_stop_position_clean = [stop for stop in filtered_stop_position if stop]
-    return json.dumps(filtered_stop_position_clean)
+    # query bus route shape
+    busRouteShapes = []
+    busRouteShapes = route_shape(filteredTripID[0],busRouteShapes)
+    busRouteShapes = route_shape(tripID,busRouteShapes)
+    busRoute = {'busStops':filtered_stop_position_clean,
+                'busRouteShapes': busRouteShapes}
+    return json.dumps(busRoute)
 
 
 @app.route("/bus_locations/<int:route_id>")
@@ -113,9 +119,7 @@ def departure_time(route_id, stopID):
             DepartureTime.sort()
     return json.dumps(DepartureTime)
 
-@app.route("/route_shape/<tripID>")
-@cross_origin()
-def route_shape(tripID):
+def route_shape(tripID,coordinates):
     # query shapeID using tripID
     with open("./capmetro/trips.txt") as f:
         for line in f:
@@ -127,15 +131,14 @@ def route_shape(tripID):
             if tripID == trip_id:
                 break 
     # query coordinates using shape_id
-    coordinates = [];
     with open("./capmetro/shapes.txt") as f:
         for line in f:
             (shape_id2,shape_pt_lat,shape_pt_lon,
              shape_pt_sequence,shape_dist_traveled) = line.split(",")
             if shape_id == shape_id2:
                coordinates.append({'lat': float(shape_pt_lat),
-                                   'lon': float(shape_pt_lon)})
-    return json.dumps(coordinates)
+                                   'lng': float(shape_pt_lon)})
+    return coordinates
 
 def loadData():
     r = requests.get('https://data.texas.gov/download/cuc7-ywmd/text%2Fplain')
