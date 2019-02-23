@@ -1,0 +1,15 @@
+
+test-server:
+  stage: test
+  image: python:3.6
+  script:
+    - pip install -r requirements.txt
+    - python tests/test_api.py
+
+test-client:
+  stage: test
+  image: node:dubnium-alpine
+  script:
+    - cd client
+    - npm ci
+    - npm test
